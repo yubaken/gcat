@@ -9,7 +9,9 @@ import (
 
 // Globals
 var (
-	version bool
+	version      bool
+	optionN      bool
+	numberOfLine int
 )
 
 var Root = &cobra.Command{
@@ -21,6 +23,7 @@ var Root = &cobra.Command{
 func init() {
 	Root.Run = Run
 	Root.Flags().BoolVarP(&version, "version", "V", false, "Print the version number")
+	Root.Flags().BoolVarP(&optionN, "number of line", "n", false, "Print the number of line")
 	cobra.OnInitialize()
 }
 
@@ -59,7 +62,12 @@ func Run(cmd *cobra.Command, args []string) {
 		}
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			fmt.Println(scanner.Text())
+			if optionN {
+				numberOfLine++
+				fmt.Printf("     %d  %s\n", numberOfLine, scanner.Text())
+			} else {
+				fmt.Printf("%s\n", scanner.Text())
+			}
 		}
 		if err := scanner.Err(); err != nil {
 			panic(err)
