@@ -46,10 +46,11 @@ func Run(cmd *cobra.Command, args []string) {
 
 	CheckArgs(1, 1, cmd, args)
 
-	file, err := os.Open(args[0])
+	var name string = args[0]
+
+	file, err := os.Open(name)
 	if err != nil {
-		log.Fatal("Not Found !!")
-		return
+		fmt.Print("gcat: file not found : " + name)
 	}
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
