@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 )
 
@@ -27,11 +26,11 @@ func init() {
 
 // CheckArgs checks there are enough arguments and prints a message if not
 func CheckArgs(MinArgs, MaxArgs int, cmd *cobra.Command, args []string) {
-	if len(args) < MinArgs {
+	if -1 != MinArgs && len(args) < MinArgs {
 		_ = cmd.Usage()
 		fmt.Fprintf(os.Stderr, "Command %s needs %d arguments mininum\n", cmd.Name(), MinArgs)
 		os.Exit(1)
-	} else if len(args) > MaxArgs {
+	} else if -1 != MaxArgs && len(args) > MaxArgs {
 		_ = cmd.Usage()
 		fmt.Fprintf(os.Stderr, "Command %s needs %d arguments maximum\n", cmd.Name(), MaxArgs)
 		os.Exit(1)
@@ -44,20 +43,27 @@ func Run(cmd *cobra.Command, args []string) {
 		os.Exit(0)
 	}
 
-	CheckArgs(1, 1, cmd, args)
+	CheckArgs(1, -1, cmd, args)
 
-	var name string = args[0]
+	var file *os.File
+	var err error
 
-	file, err := os.Open(name)
-	if err != nil {
-		fmt.Print("gcat: file not found : " + name)
-	}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		panic(err)
+	var size = len(args)
+	for i := 0; i < size; i++ {
+		var name string = args[i]
+
+		file, err = os.Open(name)
+		if err != nil {
+			fmt.Println("gcat: file not found : " + name)
+			continue
+		}
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+		if err := scanner.Err(); err != nil {
+			panic(err)
+		}
 	}
 
 	os.Exit(0)
